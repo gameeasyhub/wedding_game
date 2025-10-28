@@ -291,13 +291,30 @@ class GoalieClicker {
         this.updateScoreDisplay();
     }
 
-    setupUI() {
-        const startButton = document.getElementById('startButton');
-        const restartButton = document.getElementById('restartButton');
+	setupUI() {
+    const startButton = document.getElementById('startButton');
+    const restartButton = document.getElementById('restartButton');
 
-        if (startButton) startButton.addEventListener('click', () => this.startGame());
-        if (restartButton) restartButton.addEventListener('click', () => this.startGame());
+    if (startButton) {
+        // 🟢 Блокируем кнопку при первом запуске
+        startButton.disabled = true;
+        startButton.style.opacity = '0.5';
+        startButton.style.cursor = 'not-allowed';
+        
+        // Разблокируем через 3 секунды
+        setTimeout(() => {
+            startButton.disabled = false;
+            startButton.style.opacity = '1';
+            startButton.style.cursor = 'pointer';
+        }, 3000);
+        
+        startButton.addEventListener('click', () => this.startGame());
     }
+    
+    if (restartButton) {
+        restartButton.addEventListener('click', () => this.startGame());
+    }
+}
 
     createGoalie(side) {
         const conf = this.config[side === "L" ? "goalieL" : "goalieR"];
