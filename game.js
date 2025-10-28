@@ -8,7 +8,7 @@ class GoalieClicker {
         this.FPS = 60;
         this.PUCK_RADIUS = 14;
         this.START_LIVES = 1;
-        this.MAX_SPEED_MULT = 5;
+        this.MAX_SPEED_MULT = 3;
         this.SPEED_RAMP_TIME = 40.0;
 
         // 🟢 Новый параметр — масштаб спрайта букета
