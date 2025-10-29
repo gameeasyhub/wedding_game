@@ -69,13 +69,13 @@ class GoalieClicker {
                 "height": 1470,
                 "aspectRatio": 1024/1470
             },
-            "lieL": {
+            "goalieL": {
                 "img": "keepL.png",
                 "x_rel": 0.1,
                 "y_rel": 0.68,
                 "scale": 0.57
             },
-            "lieR": {
+            "goalieR": {
                 "img": "keepR.png", 
                 "x_rel": 0.65,
                 "y_rel": 0.68,
@@ -190,11 +190,11 @@ class GoalieClicker {
     }
 
     updateUIElements() {
-        const lElement = document.getElementById('lText');
-        if (lElement) {
-            lElement.style.left = '50%';
-            lElement.style.top = '20%';
-            lElement.style.transform = 'translate(-50%, -20%)';
+        const goalElement = document.getElementById('goalText');
+        if (goalElement) {
+            goalElement.style.left = '50%';
+            goalElement.style.top = '20%';
+            goalElement.style.transform = 'translate(-50%, -20%)';
         }
     }
 
