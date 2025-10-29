@@ -306,7 +306,7 @@ class GoalieClicker {
             startButton.disabled = false;
             startButton.style.opacity = '1';
             startButton.style.cursor = 'pointer';
-        }, 3000);
+        }, 8000);
         
         startButton.addEventListener('click', () => this.startGame());
     }
