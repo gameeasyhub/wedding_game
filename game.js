@@ -69,13 +69,13 @@ class GoalieClicker {
                 "height": 1470,
                 "aspectRatio": 1024/1470
             },
-            "goalieL": {
+            "lieL": {
                 "img": "keepL.png",
                 "x_rel": 0.1,
                 "y_rel": 0.68,
                 "scale": 0.57
             },
-            "goalieR": {
+            "lieR": {
                 "img": "keepR.png", 
                 "x_rel": 0.65,
                 "y_rel": 0.68,
@@ -190,11 +190,11 @@ class GoalieClicker {
     }
 
     updateUIElements() {
-        const goalElement = document.getElementById('goalText');
-        if (goalElement) {
-            goalElement.style.left = '50%';
-            goalElement.style.top = '20%';
-            goalElement.style.transform = 'translate(-50%, -20%)';
+        const lElement = document.getElementById('lText');
+        if (lElement) {
+            lElement.style.left = '50%';
+            lElement.style.top = '20%';
+            lElement.style.transform = 'translate(-50%, -20%)';
         }
     }
 
@@ -864,5 +864,5 @@ class Puck {
 }
 
 window.addEventListener('load', () => {
-    window.goalieGameInstance = new GoalieClicker(); // 🟢 глобальная ссылка
+    window.goalieGameInstance = new wedding_game(); // 🟢 глобальная ссылка
 });
