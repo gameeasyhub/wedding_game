@@ -457,3 +457,23 @@ body {
         min-height: 60px;
     }
 }
+/* 🟢 ДОБАВЬ ЭТОТ КОД ПРАВИЛЬНО - ВНЕ МЕДИА-ЗАПРОСОВ */
+.loading-text {
+    position: absolute;
+    top: calc(25% + 80px); /* Под кнопкой "Начать" */
+    left: 50%;
+    transform: translateX(-50%);
+    color: #ffffff;
+    font-size: 18px;
+    text-align: center;
+    opacity: 0.8;
+    display: none; /* Изначально скрыта */
+}
+
+/* Для мобильных */
+@media (max-width: 768px) {
+    .loading-text {
+        font-size: 16px;
+        top: calc(25% + 70px);
+    }
+}
