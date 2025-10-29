@@ -294,6 +294,7 @@ class GoalieClicker {
 	setupUI() {
     const startButton = document.getElementById('startButton');
     const restartButton = document.getElementById('restartButton');
+    const loadingText = document.getElementById('loadingText'); // НОВОЕ
 
     if (startButton) {
         // 🟢 Блокируем кнопку при первом запуске
@@ -301,11 +302,21 @@ class GoalieClicker {
         startButton.style.opacity = '0.5';
         startButton.style.cursor = 'not-allowed';
         
-        // Разблокируем через 3 секунды
+        // 🟢 ПОКАЗЫВАЕМ НАДПИСЬ ЗАГРУЗКИ
+        if (loadingText) {
+            loadingText.style.display = 'block';
+        }
+        
+        // Разблокируем через 8 секунды
         setTimeout(() => {
             startButton.disabled = false;
             startButton.style.opacity = '1';
             startButton.style.cursor = 'pointer';
+            
+            // 🟢 СКРЫВАЕМ НАДПИСЬ ЗАГРУЗКИ
+            if (loadingText) {
+                loadingText.style.display = 'none';
+            }
         }, 8000);
         
         startButton.addEventListener('click', () => this.startGame());
