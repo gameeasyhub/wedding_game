@@ -864,5 +864,5 @@ class Puck {
 }
 
 window.addEventListener('load', () => {
-    window.goalieGameInstance = new wedding_game(); // 🟢 глобальная ссылка
+    window.goalieGameInstance = new GoalieClicker(); // 🟢 глобальная ссылка
 });
