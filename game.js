@@ -12,12 +12,12 @@ class GoalieClicker {
         this.SPEED_RAMP_TIME = 60.0;
 
         // 🟢 Новый параметр — масштаб спрайта букета
-        this.BOUQUET_SCALE = 0.5;
+        this.BOUQUET_SCALE = 2.0;
 
         // 🧍 Настройки персонажа
         this.MAN_X = 0.63;        // положение по ширине (0..1)
         this.MAN_Y = 0.6;       // положение по высоте (0..1)
-        this.MAN_SCALE = 0.6;    // масштаб персонажа
+        this.MAN_SCALE = 2.3;    // масштаб персонажа
         this.MAN_SWITCH_SPEED = 0.5; // скорость смены кадров (в секундах)
         this.manTimer = 0;
         this.manFrame = 0; // 0 - man_1, 1 - man_2
@@ -25,7 +25,7 @@ class GoalieClicker {
         // 👩 Настройки персонажа-женщины
         this.WOMAN_X = 0.42;        // положение по ширине (0..1)
         this.WOMAN_Y = 0.6;       // положение по высоте (0..1)
-        this.WOMAN_SCALE = 0.65;    // масштаб персонажа
+        this.WOMAN_SCALE = 2.3;    // масштаб персонажа
         this.WOMAN_SWITCH_SPEED = 0.6; // скорость смены кадров (в секундах)
         this.womanTimer = 0;
         this.womanFrame = 0; // 0 - woman_1, 1 - woman_2
@@ -70,7 +70,7 @@ class GoalieClicker {
         // Конфигурация относительно background
         this.config = {
             "bg": {
-                "path": "background.png",
+                "path": "background.jpg",
                 "width": 1024,
                 "height": 1470,
                 "aspectRatio": 1024/1470
@@ -79,13 +79,13 @@ class GoalieClicker {
                 "img": "keepL.png",
                 "x_rel": 0.1,
                 "y_rel": 0.68,
-                "scale": 0.57
+                "scale": 1.25
             },
             "goalieR": {
                 "img": "keepR.png", 
                 "x_rel": 0.65,
                 "y_rel": 0.68,
-                "scale": 0.57
+                "scale": 1.25
             },
             "spawns": [
                 {
@@ -215,7 +215,7 @@ class GoalieClicker {
         return new Promise((resolve) => {
             const imagesToLoad = [
                 { key: 'bg', path: this.config.bg.path },
-                { key: 'bg2', path: 'background_2.png' }, // Добавляем второй фон
+                { key: 'bg2', path: 'background_2.jpg' }, // Добавляем второй фон
                 { key: 'goalieL', path: this.config.goalieL.img },
                 { key: 'goalieR', path: this.config.goalieR.img },
                 { key: 'bouquet', path: 'bouquet.png' },
