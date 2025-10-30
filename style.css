@@ -95,6 +95,18 @@ body {
     background: #ffd966;
 }
 
+.big-button:disabled {
+    background: #666 !important;
+    color: #999 !important;
+    cursor: not-allowed !important;
+    transform: translateX(-50%) !important;
+}
+
+.big-button:disabled:hover {
+    background: #666 !important;
+    transform: translateX(-50%) !important;
+}
+
 .hud-button {
     padding: 8px 16px;
     font-size: var(--hud-font-size);
@@ -313,9 +325,37 @@ body {
     transform: scale(0.95);
 }
 
+#startButton:disabled {
+    background: #666 !important;
+    color: #999 !important;
+    cursor: not-allowed !important;
+    transform: none !important;
+}
+
+#startButton:disabled:hover {
+    background: #666 !important;
+    transform: none !important;
+}
+
 /* Убираем подсказку на стартовом экране */
 #startHint {
     display: none;
+}
+
+/* Стили для индикатора загрузки */
+.loading-text {
+    position: absolute;
+    top: calc(25% + 90px);
+    left: 50%;
+    transform: translateX(-50%);
+    color: #ffffff;
+    font-size: 18px;
+    text-align: center;
+    opacity: 0.8;
+    background: rgba(0, 0, 0, 0.7);
+    padding: 10px 20px;
+    border-radius: 10px;
+    z-index: 25;
 }
 
 @media (max-width: 320px) {
@@ -381,6 +421,12 @@ body {
     #hud {
         display: none !important;
     }
+    
+    .loading-text {
+        font-size: 16px;
+        top: calc(25% + 80px);
+        padding: 8px 16px;
+    }
 }
 
 /* Мобильная версия - стартовый экран */
@@ -432,6 +478,24 @@ body {
         background: #ffb819;
         transform: scale(0.95);
     }
+    
+    #startButton:disabled {
+        background: #666 !important;
+        color: #999 !important;
+        cursor: not-allowed !important;
+        transform: none !important;
+    }
+    
+    #startButton:disabled:hover {
+        background: #666 !important;
+        transform: none !important;
+    }
+    
+    .loading-text {
+        font-size: 16px;
+        top: calc(25% + 90px);
+        padding: 8px 16px;
+    }
 }
 
 /* Для очень маленьких экранов */
@@ -441,6 +505,11 @@ body {
         padding: 20px 40px;
         min-width: 200px;
         min-height: 70px;
+    }
+    
+    .loading-text {
+        font-size: 14px;
+        top: calc(25% + 80px);
     }
 }
 
@@ -456,24 +525,10 @@ body {
         min-width: 180px;
         min-height: 60px;
     }
-}
-/* 🟢 ДОБАВЬ ЭТОТ КОД ПРАВИЛЬНО - ВНЕ МЕДИА-ЗАПРОСОВ */
-.loading-text {
-    position: absolute;
-    top: calc(25% + 80px); /* Под кнопкой "Начать" */
-    left: 50%;
-    transform: translateX(-50%);
-    color: #ffffff;
-    font-size: 18px;
-    text-align: center;
-    opacity: 0.8;
-    display: none; /* Изначально скрыта */
-}
-
-/* Для мобильных */
-@media (max-width: 768px) {
+    
     .loading-text {
-        font-size: 16px;
         top: calc(25% + 70px);
+        font-size: 14px;
+        padding: 6px 12px;
     }
 }
