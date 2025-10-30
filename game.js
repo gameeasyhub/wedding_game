@@ -40,6 +40,12 @@ class GoalieClicker {
         this.muted = false;
         this.isMobile = this.detectMobile();
         
+        // Система загрузки ресурсов
+        this.assetsLoaded = false;
+        this.loadingProgress = 0;
+        this.totalAssets = 0;
+        this.loadedAssets = 0;
+        
         // Позиция курсора для отладки
         this.mouseX = 0;
         this.mouseY = 0;
@@ -219,24 +225,76 @@ class GoalieClicker {
                 { key: 'woman2', path: 'woman_2.png' },
                 { key: 'invite', path: 'invite.png' }
             ];
+            
+            this.totalAssets = imagesToLoad.length;
+            this.loadedAssets = 0;
             let loadedCount = 0;
-            const totalToLoad = imagesToLoad.length;
 
             imagesToLoad.forEach(img => {
                 this.assets[img.key] = new Image();
                 this.assets[img.key].onload = () => {
                     loadedCount++;
+                    this.loadedAssets = loadedCount;
+                    this.loadingProgress = (loadedCount / this.totalAssets) * 100;
+                    this.updateLoadingDisplay();
+                    
                     if (img.key === 'bg2') this.bg2Loaded = true;
-                    if (loadedCount === totalToLoad) resolve();
+                    if (loadedCount === this.totalAssets) {
+                        this.assetsLoaded = true;
+                        this.enableStartButton();
+                        resolve();
+                    }
                 };
                 this.assets[img.key].onerror = () => {
                     console.warn(`Не удалось загрузить изображение: ${img.path}`);
                     loadedCount++;
-                    if (loadedCount === totalToLoad) resolve();
+                    this.loadedAssets = loadedCount;
+                    this.loadingProgress = (loadedCount / this.totalAssets) * 100;
+                    this.updateLoadingDisplay();
+                    
+                    if (loadedCount === this.totalAssets) {
+                        this.assetsLoaded = true;
+                        this.enableStartButton();
+                        resolve();
+                    }
                 };
                 this.assets[img.key].src = `assets/${img.path}`;
             });
         });
+    }
+
+    updateLoadingDisplay() {
+        const loadingText = document.getElementById('loadingText');
+        const startButton = document.getElementById('startButton');
+        
+        if (loadingText) {
+            loadingText.textContent = `Загрузка... ${Math.round(this.loadingProgress)}%`;
+            loadingText.style.display = 'block';
+        }
+        
+        if (startButton) {
+            startButton.disabled = true;
+            startButton.style.opacity = '0.5';
+            startButton.style.cursor = 'not-allowed';
+        }
+    }
+
+    enableStartButton() {
+        const startButton = document.getElementById('startButton');
+        const loadingText = document.getElementById('loadingText');
+        
+        if (startButton) {
+            // Добавляем небольшую задержку для плавности
+            setTimeout(() => {
+                startButton.disabled = false;
+                startButton.style.opacity = '1';
+                startButton.style.cursor = 'pointer';
+                
+                if (loadingText) {
+                    loadingText.style.display = 'none';
+                }
+            }, 500);
+        }
     }
 
     async loadSounds() {
@@ -291,41 +349,34 @@ class GoalieClicker {
         this.updateScoreDisplay();
     }
 
-	setupUI() {
-    const startButton = document.getElementById('startButton');
-    const restartButton = document.getElementById('restartButton');
-    const loadingText = document.getElementById('loadingText'); // НОВОЕ
+    setupUI() {
+        const startButton = document.getElementById('startButton');
+        const restartButton = document.getElementById('restartButton');
+        const loadingText = document.getElementById('loadingText');
 
-    if (startButton) {
-        // 🟢 Блокируем кнопку при первом запуске
-        startButton.disabled = true;
-        startButton.style.opacity = '0.5';
-        startButton.style.cursor = 'not-allowed';
-        
-        // 🟢 ПОКАЗЫВАЕМ НАДПИСЬ ЗАГРУЗКИ
-        if (loadingText) {
-            loadingText.style.display = 'block';
+        if (startButton) {
+            // Изначально блокируем кнопку
+            startButton.disabled = true;
+            startButton.style.opacity = '0.5';
+            startButton.style.cursor = 'not-allowed';
+            
+            // Показываем надпись загрузки
+            if (loadingText) {
+                loadingText.style.display = 'block';
+                loadingText.textContent = 'Загрузка... 0%';
+            }
+            
+            startButton.addEventListener('click', () => {
+                if (this.assetsLoaded) {
+                    this.startGame();
+                }
+            });
         }
         
-        // Разблокируем через 8 секунды
-        setTimeout(() => {
-            startButton.disabled = false;
-            startButton.style.opacity = '1';
-            startButton.style.cursor = 'pointer';
-            
-            // 🟢 СКРЫВАЕМ НАДПИСЬ ЗАГРУЗКИ
-            if (loadingText) {
-                loadingText.style.display = 'none';
-            }
-        }, 8000);
-        
-        startButton.addEventListener('click', () => this.startGame());
+        if (restartButton) {
+            restartButton.addEventListener('click', () => this.startGame());
+        }
     }
-    
-    if (restartButton) {
-        restartButton.addEventListener('click', () => this.startGame());
-    }
-}
 
     createGoalie(side) {
         const conf = this.config[side === "L" ? "goalieL" : "goalieR"];
@@ -355,6 +406,11 @@ class GoalieClicker {
     }
 
     startGame() {
+        if (!this.assetsLoaded) {
+            console.log('Ресурсы еще не загружены');
+            return;
+        }
+        
         this.resetGameState();
         this.playing = true;
         this.elapsed = 0;
@@ -685,123 +741,123 @@ class GoalieClicker {
         this.drawGoalie(this.currentGoalie);
     }
 
-	renderGameOverScreen(ctx) {
-    ctx.save();
-    ctx.globalAlpha = this.gameOverFade * 0.85;
-    ctx.fillStyle = '#000';
-    ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-    ctx.restore();
-
-    // Конфетти
-    for (const c of this.confetti) {
+    renderGameOverScreen(ctx) {
         ctx.save();
-        ctx.fillStyle = c.color;
-        ctx.translate(this.bgRect.x + c.x, this.bgRect.y + c.y);
-        ctx.rotate(c.rotation);
-        ctx.fillRect(-c.size / 2, -c.size / 2, c.size, c.size);
+        ctx.globalAlpha = this.gameOverFade * 0.85;
+        ctx.fillStyle = '#000';
+        ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
         ctx.restore();
-    }
 
-    // Используем background_2 если он загружен
-    if (this.bg2Loaded && this.assets.bg2?.complete) {
+        // Конфетти
+        for (const c of this.confetti) {
+            ctx.save();
+            ctx.fillStyle = c.color;
+            ctx.translate(this.bgRect.x + c.x, this.bgRect.y + c.y);
+            ctx.rotate(c.rotation);
+            ctx.fillRect(-c.size / 2, -c.size / 2, c.size, c.size);
+            ctx.restore();
+        }
+
+        // Используем background_2 если он загружен
+        if (this.bg2Loaded && this.assets.bg2?.complete) {
+            ctx.save();
+            ctx.globalAlpha = this.gameOverFade;
+            ctx.drawImage(this.assets.bg2, this.bgRect.x, this.bgRect.y, this.bgRect.width, this.bgRect.height);
+            ctx.restore();
+        }
+
+        // Текст приглашения с черной обводкой
         ctx.save();
         ctx.globalAlpha = this.gameOverFade;
-        ctx.drawImage(this.assets.bg2, this.bgRect.x, this.bgRect.y, this.bgRect.width, this.bgRect.height);
+        ctx.font = `bold ${Math.round(70 * this.bgScale)}px Arial`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+
+        // Разбиваем текст на строки для лучшего отображения
+        const lines = [
+            "Друзья, приглашаем Вас",
+            "на нашу свадьбу!",
+            "Ваши Иван и Василиса!"
+        ];
+
+        const lineHeight = 80 * this.bgScale;
+        const startY = this.bgRect.y + this.bgRect.height * 0.2;
+
+        lines.forEach((line, index) => {
+            const y = startY + (index * lineHeight);
+            const x = this.bgRect.x + this.bgRect.width / 2;
+            
+            // Рисуем черную обводку
+            ctx.strokeStyle = '#000000';
+            ctx.lineWidth = 7 * this.bgScale; // Толщина обводки
+            ctx.strokeText(line, x, y);
+            
+            // Рисуем белый текст поверх
+            ctx.fillStyle = '#ffffff';
+            ctx.fillText(line, x, y);
+        });
+        ctx.restore();
+
+        // Счет игры с черной обводкой (над кнопкой)
+        ctx.save();
+        ctx.globalAlpha = this.gameOverFade;
+        ctx.font = `bold ${Math.round(28 * this.bgScale)}px Arial`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        
+        const scoreText = `Ваш результат: ${this.score} очков`;
+        const scoreX = this.bgRect.x + this.bgRect.width / 2;
+        const scoreY = this.bgRect.y + this.bgRect.height * 0.8;
+        
+        // Черная обводка для счета
+        ctx.strokeStyle = '#000000';
+        ctx.lineWidth = 3 * this.bgScale;
+        ctx.strokeText(scoreText, scoreX, scoreY);
+        
+        // Белый текст счета
+        ctx.fillStyle = '#ffffff';
+        ctx.fillText(scoreText, scoreX, scoreY);
+        ctx.restore();
+
+        // Кнопка "Играть еще раз" с закругленными углами
+        const btnWidth = 300 * this.bgScale;
+        const btnHeight = 80 * this.bgScale;
+        const btnX = this.bgRect.x + (this.bgRect.width - btnWidth) / 2;
+        const btnY = this.bgRect.y + this.bgRect.height * 0.87;
+        const borderRadius = 20 * this.bgScale; // Радиус закругления
+        
+        ctx.save();
+        ctx.globalAlpha = this.gameOverFade;
+        
+        // Рисуем кнопку с закругленными углами
+        ctx.fillStyle = '#ffffff';
+        this.drawRoundedRect(ctx, btnX, btnY, btnWidth, btnHeight, borderRadius);
+        ctx.fill();
+        
+        // Текст кнопки
+        ctx.fillStyle = '#000';
+        ctx.font = `${Math.round(36 * this.bgScale)}px Arial`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('Играть еще раз', btnX + btnWidth / 2, btnY + btnHeight / 2);
+        
         ctx.restore();
     }
 
-    // Текст приглашения с черной обводкой
-    ctx.save();
-    ctx.globalAlpha = this.gameOverFade;
-    ctx.font = `bold ${Math.round(70 * this.bgScale)}px Arial`;
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-
-    // Разбиваем текст на строки для лучшего отображения
-    const lines = [
-        "Друзья, приглашаем Вас",
-        "на нашу свадьбу!",
-        "Ваши Иван и Василиса!"
-    ];
-
-    const lineHeight = 80 * this.bgScale;
-    const startY = this.bgRect.y + this.bgRect.height * 0.2;
-
-    lines.forEach((line, index) => {
-        const y = startY + (index * lineHeight);
-        const x = this.bgRect.x + this.bgRect.width / 2;
-        
-        // Рисуем черную обводку
-        ctx.strokeStyle = '#000000';
-        ctx.lineWidth = 7 * this.bgScale; // Толщина обводки
-        ctx.strokeText(line, x, y);
-        
-        // Рисуем белый текст поверх
-        ctx.fillStyle = '#ffffff';
-        ctx.fillText(line, x, y);
-    });
-    ctx.restore();
-
- // Счет игры с черной обводкой (над кнопкой)
-    ctx.save();
-    ctx.globalAlpha = this.gameOverFade;
-    ctx.font = `bold ${Math.round(28 * this.bgScale)}px Arial`;
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    
-    const scoreText = `Ваш результат: ${this.score} очков`;
-    const scoreX = this.bgRect.x + this.bgRect.width / 2;
-    const scoreY = this.bgRect.y + this.bgRect.height * 0.8;
-    
-    // Черная обводка для счета
-    ctx.strokeStyle = '#000000';
-    ctx.lineWidth = 3 * this.bgScale;
-    ctx.strokeText(scoreText, scoreX, scoreY);
-    
-    // Белый текст счета
-    ctx.fillStyle = '#ffffff';
-    ctx.fillText(scoreText, scoreX, scoreY);
-    ctx.restore();
-
-    // Кнопка "Играть еще раз" с закругленными углами
-    const btnWidth = 300 * this.bgScale;
-    const btnHeight = 80 * this.bgScale;
-    const btnX = this.bgRect.x + (this.bgRect.width - btnWidth) / 2;
-    const btnY = this.bgRect.y + this.bgRect.height * 0.87;
-    const borderRadius = 20 * this.bgScale; // Радиус закругления
-    
-    ctx.save();
-    ctx.globalAlpha = this.gameOverFade;
-    
-    // Рисуем кнопку с закругленными углами
-    ctx.fillStyle = '#ffffff';
-    this.drawRoundedRect(ctx, btnX, btnY, btnWidth, btnHeight, borderRadius);
-    ctx.fill();
-    
-    // Текст кнопки
-    ctx.fillStyle = '#000';
-    ctx.font = `${Math.round(36 * this.bgScale)}px Arial`;
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText('Играть еще раз', btnX + btnWidth / 2, btnY + btnHeight / 2);
-    
-    ctx.restore();
-}
-
-// Вспомогательный метод для рисования прямоугольника с закругленными углами
-drawRoundedRect(ctx, x, y, width, height, radius) {
-    ctx.beginPath();
-    ctx.moveTo(x + radius, y);
-    ctx.lineTo(x + width - radius, y);
-    ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
-    ctx.lineTo(x + width, y + height - radius);
-    ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
-    ctx.lineTo(x + radius, y + height);
-    ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
-    ctx.lineTo(x, y + radius);
-    ctx.quadraticCurveTo(x, y, x + radius, y);
-    ctx.closePath();
-}
+    // Вспомогательный метод для рисования прямоугольника с закругленными углами
+    drawRoundedRect(ctx, x, y, width, height, radius) {
+        ctx.beginPath();
+        ctx.moveTo(x + radius, y);
+        ctx.lineTo(x + width - radius, y);
+        ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+        ctx.lineTo(x + width, y + height - radius);
+        ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+        ctx.lineTo(x + radius, y + height);
+        ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+        ctx.lineTo(x, y + radius);
+        ctx.quadraticCurveTo(x, y, x + radius, y);
+        ctx.closePath();
+    }
 
     drawGoalie(goalie) {
         if (!goalie.img?.complete) return;
